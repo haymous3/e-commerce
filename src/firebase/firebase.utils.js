@@ -1,5 +1,7 @@
 import { initializeApp } from 'firebase/app';
+import {  getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
+// import { getDatabase } from 'firebase/database';
 
 // import 'firebase/firestore';
 // import 'firebase/auth';
@@ -15,11 +17,40 @@ const configuration = {
     measurementId: "G-CW6LJBFTNK"
 };
 
-const app = initializeApp(configuration)
+
+const app = initializeApp(configuration);
+
+export const db = getFirestore(app)
 
 export const auth = getAuth(app)
 
+
 const provider = new GoogleAuthProvider();
+
+
+export const createUserProfile = async ( userAuth, otherItems) => {
+
+    
+
+        const docRef =  getDoc(doc(db, "users", `${userAuth.uid}`));
+
+
+        if(!userAuth)return;
+
+        const { displayName, email } = userAuth; 
+        const created = new Date()
+
+    
+        await setDoc(doc(db, "users", `${userAuth.uid}`), {
+            name:displayName,
+            emails: email,
+            createdAt: created,
+            ...otherItems
+        }); 
+
+    
+        return docRef
+}
 
 
 provider.setCustomParameters({
@@ -27,57 +58,20 @@ provider.setCustomParameters({
 })
 
 export const signInWithGoogle = () => {
-    signInWithPopup(auth, provider).then((result) =>{
-        console.log(result)
-    })
-    .catch((error) =>{
-        console.log(error)
-    })
-}
 
-// export const signWithFacebook = () => {
-//     signInWithPopup(auth, facebook).then((result) => {
-//         console.log(result)
-//     })
-//     .catch((error) => {
-//         console.log(error)
-//     })
-// }
-// firebase.initializeApp(configuration);
+    signInWithPopup(auth, provider).then((result) => {
+        const profile = result.user.photoURL;
 
-// export const auth = firebase.auth();
-// export const firestore = firebase.firebase();
+        localStorage.setItem('picture', profile)
+    });
+};
 
-// const provider = new firebase.auth.GoogleAuthProvider();
 
-// provider.setCustomPrementers({prompt: 'select_account'});
 
-// export const signInWithGoogle = auth.signInWithPopup(provider);
 
-// export default firebase;
+    
 
-// import { getAuth, signInWithPopup, FacebookAuthProvider } from "firebase/auth";
 
-// const auth = getAuth();
-// signInWithPopup(auth, provider)
-//   .then((result) => {
-//     // The signed-in user info.
-//     const user = result.user;
 
-//     // This gives you a Facebook Access Token. You can use it to access the Facebook API.
-//     const credential = FacebookAuthProvider.credentialFromResult(result);
-//     const accessToken = credential.accessToken;
 
-//     // ...
-//   })
-//   .catch((error) => {
-//     // Handle Errors here.
-//     const errorCode = error.code;
-//     const errorMessage = error.message;
-//     // The email of the user's account used.
-//     const email = error.customData.email;
-//     // The AuthCredential type that was used.
-//     const credential = FacebookAuthProvider.credentialFromError(error);
 
-//     // ...
-//   });

@@ -2,7 +2,10 @@ import React from "react";
 import { Link } from 'react-router-dom';
 import { ReactComponent as Logo } from "../../assets/crown.svg";
 import { auth } from "../../firebase/firebase.utils";
-import './header.styles.scss'
+import './header.styles.scss';
+import { signInWithGoogle } from "../../firebase/firebase.utils";
+
+
 
 
 const Header = ({currentuser}) => (
@@ -11,6 +14,7 @@ const Header = ({currentuser}) => (
         <Link to={'/'} className="logo-container">
             <Logo className="logo"/>
         </Link>
+        
         <div className="options">
             <Link to={'/shop'} className="option">
                 SHOP
@@ -23,8 +27,16 @@ const Header = ({currentuser}) => (
                 <div className="option" onClick= {() =>auth.signOut()}>
                     SIGN OUT
                 </div>
-                :<Link to={'/signin'} className="option">SIGN IN</Link>
+                :<Link to={'/signin'} className="option" onClick={ signInWithGoogle }>SIGN IN</Link>
             }
+            {
+                currentuser ?
+                <img src={localStorage.getItem('picture')} alt='pic' className="img-pic"/>
+                :null
+            }
+            
+            
+           
         </div>
     </div>
 
